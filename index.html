@@ -1221,7 +1221,43 @@
       text-transform: uppercase;
       letter-spacing: .1em;
     }
+/* Keep the full-screen menu above the header */
+.header {
+  z-index: 100;
+}
 
+.mobile-nav {
+  z-index: 200;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-100%);
+  transition:
+    transform 0.65s var(--ease),
+    visibility 0s linear 0.65s;
+}
+
+.mobile-nav.open {
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+  transition:
+    transform 0.65s var(--ease),
+    visibility 0s;
+}
+
+/* Keep the close button clickable and visible */
+.close-menu {
+  position: absolute;
+  top: 25px;
+  right: 30px;
+  z-index: 201;
+  color: #fff;
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+}
     /* ================= Responsive Media Queries ================= */
     @media(max-width: 900px) {
       .hero-bg {
@@ -1773,17 +1809,41 @@
     });
 
     /* Mobile menu handlers */
-    const mobileNav = document.getElementById("mobileNav");
-    document.getElementById("menuBtn").addEventListener("click", () => {
-      mobileNav.classList.add("open");
-      document.body.classList.add("menu-open");
-    });
-    document.getElementById("closeMenu").addEventListener("click", closeMenu);
-    mobileNav.querySelectorAll("a").forEach(a => a.addEventListener("click", closeMenu));
-    function closeMenu() {
-      mobileNav.classList.remove("open");
-      document.body.classList.remove("menu-open");
-    }
+  /* Mobile menu handlers */
+const menuBtn = document.getElementById("menuBtn");
+const mobileNav = document.getElementById("mobileNav");
+const closeBtn = document.getElementById("closeMenu");
+
+function openMenu() {
+  mobileNav.classList.add("open");
+  document.body.classList.add("menu-open");
+
+  menuBtn.setAttribute("aria-expanded", "true");
+  closeBtn.focus();
+}
+
+function closeMenu() {
+  mobileNav.classList.remove("open");
+  document.body.classList.remove("menu-open");
+
+  menuBtn.setAttribute("aria-expanded", "false");
+  menuBtn.focus();
+}
+
+menuBtn.setAttribute("aria-expanded", "false");
+
+menuBtn.addEventListener("click", openMenu);
+closeBtn.addEventListener("click", closeMenu);
+
+mobileNav.querySelectorAll("a").forEach(link => {
+  link.addEventListener("click", closeMenu);
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && mobileNav.classList.contains("open")) {
+    closeMenu();
+  }
+});
 
     /* Scroll reveal observer */
     const revealObserver = new IntersectionObserver(entries => {
